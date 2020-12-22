@@ -36,7 +36,7 @@ else {
     $gatlingTest = "gatling." + $SimulationTest
     $gatlingResults = "gatling\" + $projectDirectory + "\target"
     $gatlingSimulations = "gatling\" + $projectDirectory + "\src\test\scala\gatling"
-    $gatlingLogs = "gatling\" + $projectDirectory.ToString() + "\log";
+    $gatlingLogs = "gatling\" + $projectDirectory + "\log";
     $gatlingLogback = "logback\" + $LogbackFile;
     $gatlingInfluxConfig = "gatling-config\gatling.conf";
     #Configure Docker-compose parameters
