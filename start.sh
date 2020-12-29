@@ -5,50 +5,46 @@ set -o nounset
 
 source configuration.env
 directory=${PWD}/gatling
-# mkdir gatling
-# git clone ${Repository}
-# sleep 60
+mkdir gatling
+cd gatling
+git clone ${Repository}
+cd ..
+sleep 10
 
 projectDirectory=$(find $directory -mindepth 1 -maxdepth 1 -type d | awk -F/ '{print $NF}')
 
-GATLING_RESOURCE='gatling//'${projectDirectory}'//src/test/resources'
+#Configure gatling simulation class
 GATLING_TEST='gatling.'${SimulationTest}''
-GATLING_RESULTS='gatling//'{$projectDirectory}'/target'
-GATLING_SIMULATION='gatling//'${projectDirectory}'//src//test//scala//gatling'
-GATLING_LOGS='gatling//'${projectDirectory}'//log'
-GATLING_LOGBACK='logback//'${LogbackFile}
-GATLING_INFLUX_CONFIG='gatling-config//gatling.conf'
+
+#Configure Influx db SetUp
+INFLUXDB_ADMIN_USER='admin'
+INFLUXDB_ADMIN_PASSWORD='admin'
+INFLUXDB_DEMO_DATABASE='graphite'
 
 echo "==> Prepare Configurations"
-sed -i 's/%GATLING_TEST_PATH%/'${GATLING_TEST}'/g' \
-    -i 's/%GATLING_CONFIG_PATH%/'${GATLING_RESOURCE}'/g' \
-    -i 's/%GATLING_LOGBACK_PATH%/'${GATLING_LOGBACK}'/g' \
-    -i 's/%GATLING_INFLUX_CONFIG_PATH%/'${GATLING_INFLUX_CONFIG}'/g'   \
-    -i 's/%GATLING_SIMULATION_TEST_PATH%/'${GATLING_SIMULATION}'/g'   \
-    -i 's/%GATLING_SIMULATION_RESULTS_PATH%/'${GATLING_RESULTS}'/g'   \
-    -i 's/%GATLING_LOGS_PATH%/'${GATLING_LOGS}'/g'   \
-    templates/container.yaml.template \
+sed -e 's/%GATLING_TEST_PATH%/'${GATLING_TEST}'/g' \
+    -e 's/%GATLING_LOGBACK_PATH%/'${LogbackFile}'/g' \
+    -e 's/%GATLING_DIRECTORY%/'${projectDirectory}'/g' \
+    templates/container.yaml.sh.template \
   > docker-compose.yml
 
 echo "==> Docker Image Pull"
-#docker-compose pull
+docker-compose pull
 
 echo "==> Bring Up Services"
-#docker-compose up gatling
+docker-compose up -d
 
 echo "==> Waiting for Services Ready"
-#sleep 60
+sleep 60
 
-# echo "==> Initial Database"
-# docker exec -it influxdb                 \
-#   influx                                 \
-#     -username ${INFLUXDB_ADMIN_USER}     \
-#     -password ${INFLUXDB_ADMIN_PASSWORD} \
-#     -execute 'CREATE DATABASE '${INFLUXDB_DEMO_DATABASE}';'
+echo "==> Initial Database"
+docker exec -it influxdb                 \
+  influx                                 \
+    -username ${INFLUXDB_ADMIN_USER}     \
+    -password ${INFLUXDB_ADMIN_PASSWORD} \
+    -execute 'CREATE DATABASE '${INFLUXDB_DEMO_DATABASE}';'
 
-# echo "==> Done"
+echo "==> Done"
 
-# echo "==> Next Step:"
-# echo "    Setup your dashboard by visiting http://localhost:3000"
-# echo "==> Default Username: admin"
-# echo "==> Default Password: admin"
+echo "==> Next Step:"
+echo "    Setup your dashboard by visiting http://localhost:3000"

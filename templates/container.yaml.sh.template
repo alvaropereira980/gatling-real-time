@@ -3,17 +3,17 @@ version: '3.8'
 services:
   gatling:
     image: alvarito980developer/gatling:3.4
-    command: [-s, gatling.BasicSimulation]
+    command: [-s, %GATLING_TEST_PATH%]
     networks:
       - gatling
     depends_on:
       - grafana
     volumes:
-      - ./logback/logbackTrace.xml:/opt/gatling/conf/logback.xml
+      - ./logback/%GATLING_LOGBACK_PATH%:/opt/gatling/conf/logback.xml
       - ./gatling-config/gatling.conf:/opt/gatling/conf/gatling.conf
-      - ./gatling/gatling-maven/src/test/scala/gatling:/opt/gatling/user-files/simulations
-      - ./gatling/gatling-maven/target:/opt/gatling/results
-      - ./gatling/gatling-maven/log:/opt/gatling/log
+      - ./gatling/%GATLING_DIRECTORY%/src/test/scala/gatling:/opt/gatling/user-files/simulations
+      - ./gatling/%GATLING_DIRECTORY%/target:/opt/gatling/results
+      - ./gatling/%GATLING_DIRECTORY%/log:/opt/gatling/log
 
   prometheus:
     build: ./prometheus
